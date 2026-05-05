@@ -19,6 +19,7 @@ set(SOURCES "audio/audio_codec.cc"
             "display/lvgl_display/lvgl_display.cc"
             "display/emote_display.cc"
             "display/lvgl_display/emoji_collection.cc"
+            "display/lvgl_display/noto_lottie_emoji.cc"
             "display/lvgl_display/lvgl_theme.cc"
             "display/lvgl_display/lvgl_font.cc"
             "display/lvgl_display/lvgl_image.cc"
@@ -1000,6 +1001,12 @@ idf_component_register(SRCS ${SOURCES}
                         efuse
                         bt
                         fatfs
+                        # KamiMon: esp-wifi-connect is now vendored at
+                        # components/esp-wifi-connect/ (was managed dep
+                        # 78/esp-wifi-connect). Required explicitly so its
+                        # public REQUIRES (nvs_flash, esp_wifi, etc.) flow
+                        # through to main's include path.
+                        esp-wifi-connect
                         ${MAIN_PRIV_REQUIRES_EXTRA}
                     )
 

@@ -31,6 +31,10 @@ protected:
     lv_obj_t* emoji_image_ = nullptr;
     std::unique_ptr<LvglGif> gif_controller_ = nullptr;
     lv_obj_t* emoji_box_ = nullptr;
+    // KamiMon: Lottie-based animated emoji widget + its render buffer.
+    // Created lazily in SetupUI(). Buffer is PSRAM-resident at LOTTIE_EMOJI_SIZE_PX squared.
+    lv_obj_t* emoji_lottie_ = nullptr;
+    void* emoji_lottie_buffer_ = nullptr;
     lv_obj_t* chat_message_label_ = nullptr;
     esp_timer_handle_t preview_timer_ = nullptr;
     std::unique_ptr<LvglImage> preview_image_cached_ = nullptr;

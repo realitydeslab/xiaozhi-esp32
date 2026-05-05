@@ -846,6 +846,27 @@ void LcdDisplay::SetupUI() {
     lv_obj_center(emoji_image_);
     lv_obj_add_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
 
+#if LV_USE_LOTTIE
+    /* KamiMon: Lottie-rendered animated emoji.
+     * Sized to 320x320 by default; ARGB8888 frame buffer allocated in PSRAM. */
+    constexpr int kLottieSizePx = 320;
+    constexpr size_t kLottieBufferBytes = kLottieSizePx * kLottieSizePx * 4;
+    emoji_lottie_buffer_ = heap_caps_malloc(kLottieBufferBytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (emoji_lottie_buffer_ == nullptr) {
+        emoji_lottie_buffer_ = heap_caps_malloc(kLottieBufferBytes, MALLOC_CAP_DEFAULT);
+    }
+    if (emoji_lottie_buffer_ != nullptr) {
+        emoji_lottie_ = lv_lottie_create(emoji_box_);
+        lv_obj_set_size(emoji_lottie_, kLottieSizePx, kLottieSizePx);
+        lv_lottie_set_buffer(emoji_lottie_, kLottieSizePx, kLottieSizePx, emoji_lottie_buffer_);
+        lv_obj_center(emoji_lottie_);
+        lv_obj_add_flag(emoji_lottie_, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        ESP_LOGW(TAG, "Failed to allocate Lottie render buffer (%u bytes); Lottie emojis disabled",
+                 (unsigned)kLottieBufferBytes);
+    }
+#endif
+
     /* Middle layer: preview_image_ - centered display */
     preview_image_ = lv_image_create(screen);
     lv_obj_set_size(preview_image_, width_ / 2, height_ / 2);
@@ -1092,6 +1113,11 @@ void LcdDisplay::SetEmotion(const char* emotion) {
                 gif_controller_->Stop();
                 gif_controller_.reset();
             }
+#if LV_USE_LOTTIE
+            if (emoji_lottie_ != nullptr) {
+                lv_obj_add_flag(emoji_lottie_, LV_OBJ_FLAG_HIDDEN);
+            }
+#endif
             lv_label_set_text(emoji_label_, utf8);
             lv_obj_add_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
             lv_obj_remove_flag(emoji_label_, LV_OBJ_FLAG_HIDDEN);
@@ -1106,6 +1132,19 @@ void LcdDisplay::SetEmotion(const char* emotion) {
         gif_controller_->Stop();
         gif_controller_.reset();
     }
+#if LV_USE_LOTTIE
+    if (image->IsLottie() && emoji_lottie_ != nullptr) {
+        auto* lottie = static_cast<const LvglLottieImage*>(image);
+        lv_lottie_set_src_data(emoji_lottie_, lottie->lottie_data(), lottie->lottie_size());
+        lv_obj_remove_flag(emoji_lottie_, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(emoji_label_, LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+    if (emoji_lottie_ != nullptr) {
+        lv_obj_add_flag(emoji_lottie_, LV_OBJ_FLAG_HIDDEN);
+    }
+#endif
     if (image->IsGif()) {
         // Create new GIF controller
         gif_controller_ = std::make_unique<LvglGif>(image->image_dsc());

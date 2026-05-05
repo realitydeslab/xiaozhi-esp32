@@ -62,3 +62,12 @@ LvglAllocatedImage::~LvglAllocatedImage() {
         image_dsc_.data = nullptr;
     }
 }
+
+LvglLottieImage::LvglLottieImage(const void* data, size_t size, bool owns)
+    : data_(data), size_(size), owns_(owns) {}
+
+LvglLottieImage::~LvglLottieImage() {
+    if (owns_ && data_) {
+        heap_caps_free((void*)data_);
+    }
+}

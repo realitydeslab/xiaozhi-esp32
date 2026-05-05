@@ -8,6 +8,7 @@ class LvglImage {
 public:
     virtual const lv_img_dsc_t* image_dsc() const = 0;
     virtual bool IsGif() const { return false; }
+    virtual bool IsLottie() const { return false; }
     virtual ~LvglImage() = default;
 };
 
@@ -50,4 +51,24 @@ public:
 
 private:
     lv_img_dsc_t image_dsc_;
+};
+
+// KamiMon: holds a Lottie JSON buffer for use with lv_lottie.
+// image_dsc() returns nullptr — callers must check IsLottie() and use lottie_data()/lottie_size().
+class LvglLottieImage : public LvglImage {
+public:
+    // Construct from an in-memory JSON buffer (does not take ownership unless owns=true).
+    LvglLottieImage(const void* data, size_t size, bool owns = false);
+    virtual ~LvglLottieImage();
+
+    virtual const lv_img_dsc_t* image_dsc() const override { return nullptr; }
+    virtual bool IsLottie() const override { return true; }
+
+    const void* lottie_data() const { return data_; }
+    size_t lottie_size() const { return size_; }
+
+private:
+    const void* data_;
+    size_t size_;
+    bool owns_;
 };

@@ -29,3 +29,12 @@ CONFIG_USB_HOST_CONTROL_TRANSFER_MAX_SIZE=1536
 
 # LVGL Graphics
 CONFIG_LV_USE_SNAPSHOT=y
+
+# KamiMon: enable Lottie animations via ThorVG (built into LVGL 9.x).
+# Required for NotoLottieEmoji rendering on boards like Waveshare 1.46.
+# LV_USE_LOTTIE depends on LV_USE_VECTOR_GRAPHIC and LV_USE_THORVG (with the
+# INTERNAL implementation chosen). All four flags must be set together.
+CONFIG_LV_USE_VECTOR_GRAPHIC=y
+CONFIG_LV_USE_THORVG=y
+CONFIG_LV_USE_THORVG_INTERNAL=y
+CONFIG_LV_USE_LOTTIE=y

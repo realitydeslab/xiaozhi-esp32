@@ -1,6 +1,8 @@
 #include "wifi_board.h"
 #include "codecs/no_audio_codec.h"
 #include "display/lcd_display.h"
+#include "display/lvgl_display/lvgl_theme.h"
+#include "display/lvgl_display/noto_lottie_emoji.h"
 #include "system_reset.h"
 #include "application.h"
 #include "button.h"
@@ -53,6 +55,14 @@ public:
 
         DisplayLockGuard lock(this);
         lv_display_add_event_cb(display_, rounder_event_cb, LV_EVENT_INVALIDATE_AREA, NULL);
+
+        // KamiMon: install Noto animated emoji collection (loads Lottie JSONs from
+        // the configured asset path). Falls back silently to font-awesome icons
+        // when assets are missing.
+        if (auto* lvgl_theme = static_cast<LvglTheme*>(current_theme_)) {
+            lvgl_theme->set_emoji_collection(
+                std::make_shared<NotoLottieEmoji>(CONFIG_KAMIMON_NOTO_LOTTIE_PATH));
+        }
     }
 };
 
