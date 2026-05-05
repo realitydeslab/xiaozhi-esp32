@@ -62,6 +62,19 @@ whatever path `CONFIG_KAMIMON_NOTO_LOTTIE_PATH` resolves to). Filenames map
 etc. See `assets/emoji/` in the KamiMon repo for the asset bundle and a fetch
 script that pulls them from Google Fonts.
 
+`main/main.cc` calls `esp_vfs_spiffs_register({base_path="/spiffs",
+partition_label="assets"})` early in app_main so the JSONs are available
+before display init. KamiMon repurposes the `assets` partition (declared as
+data/spiffs at 0x800000, 8 MB in the v2 partition table) for Noto Lottie
+SPIFFS — the upstream `esp_emote_gfx` mmap path is unused on this board
+because `NotoLottieEmoji` overrides emote_gfx anyway.
+
+To produce the SPIFFS image: from the KamiMon repo root, run
+`make firmware-flash-emoji` — it stages `assets/emoji/noto/*.json` into
+`build/kamimon_spiffs/emoji/noto/`, calls `spiffsgen.py` with the partition
+size (0x800000), and flashes the image to offset 0x800000. `make
+firmware-flash` runs the whole sequence (app + emoji) end-to-end.
+
 ## WPA2-Enterprise (eduroam) support
 
 The upstream `78/esp-wifi-connect` component (managed dependency) only

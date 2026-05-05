@@ -1007,6 +1007,9 @@ idf_component_register(SRCS ${SOURCES}
                         # public REQUIRES (nvs_flash, esp_wifi, etc.) flow
                         # through to main's include path.
                         esp-wifi-connect
+                        # KamiMon: spiffs for /spiffs mount in main.cc
+                        # (Noto Lottie JSONs).
+                        spiffs
                         ${MAIN_PRIV_REQUIRES_EXTRA}
                     )
 
