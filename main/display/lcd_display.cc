@@ -848,8 +848,11 @@ void LcdDisplay::SetupUI() {
 
 #if LV_USE_LOTTIE
     /* KamiMon: Lottie-rendered animated emoji.
-     * Sized to 320x320 by default; ARGB8888 frame buffer allocated in PSRAM. */
-    constexpr int kLottieSizePx = 320;
+     * Sized to match the Waveshare 1.46 round LCD (412x412) so the Noto
+     * face fills the full screen — Lottie source is 1024x1024 vector so
+     * scaling up costs nothing in quality. ARGB8888 frame buffer in PSRAM
+     * = ~680 KB; well within the 8 MB budget. */
+    constexpr int kLottieSizePx = 412;
     constexpr size_t kLottieBufferBytes = kLottieSizePx * kLottieSizePx * 4;
     emoji_lottie_buffer_ = heap_caps_malloc(kLottieBufferBytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (emoji_lottie_buffer_ == nullptr) {
